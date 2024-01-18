@@ -1,0 +1,20 @@
+language: generic
+
+sudo: required
+services:
+  - docker
+
+before install
+  - docker build -t  kamen/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+
+  - docker run -e CI=true kamen/react-test npm test
+
+after_success:
+
+  - docker build -t kamen/multi-client ./client
+  - docker build -t kamen/multi-nginx ./nginx
+  - docker build -t kamen/multi-server ./server
+  - docker build -t kamen/multi-worker ./worker
+
