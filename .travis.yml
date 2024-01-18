@@ -1,0 +1,28 @@
+language: generic
+
+sudo: required
+services:
+  - docker
+
+before install
+  - docker build -t  kamen/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+
+  - docker run -e CI=true kamen/react-test npm test
+
+after_success:
+
+  - docker build -t kamen/multi-client ./client
+  - docker build -t kamen/multi-nginx ./nginx
+  - docker build -t kamen/multi-server ./server
+  - docker build -t kamen/multi-worker ./worker
+
+
+# log in to the docker CLI
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+# Take those images and push them to docker hub
+- docker push kamen/multi-client
+- docker push kamen/multi-nginx
+- docker push kamen/multi-server
+- docker push kamen/multi-worker
